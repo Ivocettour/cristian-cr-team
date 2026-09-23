@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { finalizarPartido, iniciarPartido, reabrirPartido, type SetInput } from "@/lib/actions/live";
+import { eliminarPartido } from "@/lib/actions/armado";
+import { formatHora } from "@/lib/format";
 import type { PartidoCompleto } from "@/lib/types";
 
 function nombrePareja(p: PartidoCompleto["pareja_a"]) {
@@ -12,14 +14,9 @@ function nombrePareja(p: PartidoCompleto["pareja_a"]) {
 const inputClass =
   "h-11 w-14 rounded-lg border border-white/20 bg-background text-center text-white outline-none focus:border-accent";
 
-export function ResultadoMatchCard({
-  partido,
-  torneoId,
-}: {
-  partido: PartidoCompleto;
-  torneoId: string;
-}) {
+export function MatchRow({ partido, torneoId }: { partido: PartidoCompleto; torneoId: string }) {
   const [isPending, startTransition] = useTransition();
+  const [cargandoResultado, setCargandoResultado] = useState(false);
   const [ganador, setGanador] = useState<string | null>(partido.ganador_pareja_id);
   const [duracion, setDuracion] = useState(
     partido.duracion_minutos ? String(partido.duracion_minutos) : ""
@@ -52,22 +49,49 @@ export function ResultadoMatchCard({
     startTransition(() => {
       finalizarPartido(partido.id, torneoId, sets, ganador, duracion ? Number(duracion) : null);
     });
+    setCargandoResultado(false);
   }
 
   return (
-    <div className="rounded-2xl border border-border-subtle bg-panel p-4">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="font-heading text-xs tracking-wide text-foreground-muted">{partido.cancha}</p>
-          <Badge estado={partido.estado} className="mt-1" />
+    <div className="border-b border-border-subtle px-4 py-3 last:border-b-0 sm:px-6">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm text-white">{nombrePareja(partido.pareja_a)}</p>
+          <p className="truncate text-sm text-white">{nombrePareja(partido.pareja_b)}</p>
         </div>
+        <div className="flex shrink-0 items-center gap-3">
+          {finalizado &&
+            partido.sets.map((s) => (
+              <span key={s.numero_set} className="font-heading text-sm text-white">
+                {s.games_pareja_a}-{s.games_pareja_b}
+              </span>
+            ))}
+          <Badge estado={partido.estado} />
+        </div>
+      </div>
+
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground-muted">
+        <span>{partido.cancha}</span>
+        {!finalizado && <span>{formatHora(partido.hora_inicio)}</span>}
+        {partido.duracion_minutos && <span>{partido.duracion_minutos}m</span>}
         {partido.estado === "pendiente" && (
           <button
             disabled={isPending}
             onClick={() => startTransition(() => iniciarPartido(partido.id, torneoId))}
-            className="min-h-11 rounded-full border border-white/30 px-4 font-heading text-xs tracking-wide text-white disabled:opacity-50"
+            className="underline decoration-dotted hover:text-white disabled:opacity-50"
           >
-            Marcar en vivo
+            marcar en vivo
+          </button>
+        )}
+      </div>
+
+      <div className="mt-2 flex items-center gap-3">
+        {!finalizado && (
+          <button
+            onClick={() => setCargandoResultado((v) => !v)}
+            className="min-h-11 rounded-full bg-accent px-4 font-heading text-xs tracking-wide text-white hover:bg-accent-light"
+          >
+            {cargandoResultado ? "Cerrar" : "Cargar resultado"}
           </button>
         )}
         {finalizado && (
@@ -78,21 +102,27 @@ export function ResultadoMatchCard({
                 startTransition(() => reabrirPartido(partido.id, torneoId));
               }
             }}
-            className="min-h-11 rounded-full border border-white/20 px-4 font-heading text-xs tracking-wide text-foreground-muted hover:border-white hover:text-white disabled:opacity-50"
+            className="font-heading text-xs tracking-wide text-foreground-muted underline hover:text-white disabled:opacity-50"
           >
             Reabrir
           </button>
         )}
+        <button
+          disabled={isPending}
+          onClick={() => {
+            if (confirm("¿Borrar este partido?")) {
+              startTransition(() => eliminarPartido(partido.id, torneoId));
+            }
+          }}
+          className="font-heading text-xs tracking-wide text-foreground-muted underline hover:text-white disabled:opacity-50"
+        >
+          Borrar
+        </button>
       </div>
 
-      <div className="flex flex-col gap-2 text-sm text-white">
-        <p className="truncate">{nombrePareja(partido.pareja_a)}</p>
-        <p className="truncate">{nombrePareja(partido.pareja_b)}</p>
-      </div>
-
-      {!finalizado ? (
-        <>
-          <div className="mt-3 flex flex-col gap-2">
+      {cargandoResultado && (
+        <div className="mt-3 rounded-xl border border-border-subtle bg-background/60 p-3">
+          <div className="flex flex-col gap-2">
             {sets.map((set, index) => (
               <div key={set.numero_set} className="flex items-center gap-3">
                 <span className="w-12 font-heading text-xs tracking-wide text-foreground-muted">
@@ -119,7 +149,7 @@ export function ResultadoMatchCard({
             ))}
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 border-t border-border-subtle pt-3">
+          <div className="mt-3 flex flex-col gap-2 border-t border-border-subtle pt-3">
             <div className="flex gap-2">
               <button
                 onClick={() => setGanador(partido.pareja_a_id)}
@@ -159,15 +189,6 @@ export function ResultadoMatchCard({
               </button>
             </div>
           </div>
-        </>
-      ) : (
-        <div className="mt-3 flex items-center gap-3 text-sm text-foreground-muted">
-          {partido.sets.map((s) => (
-            <span key={s.numero_set} className="font-heading text-white">
-              {s.games_pareja_a}-{s.games_pareja_b}
-            </span>
-          ))}
-          {partido.duracion_minutos && <span>· {partido.duracion_minutos}m</span>}
         </div>
       )}
     </div>

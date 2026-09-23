@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notificarSeguidoresDeJugadores } from "@/lib/notifications";
 
 function revalidarResultados(torneoId: string) {
-  revalidatePath(`/admin/torneos/${torneoId}/vivo`);
+  revalidatePath(`/admin/torneos/${torneoId}/partidos`);
   revalidatePath(`/torneos/${torneoId}`);
 }
 

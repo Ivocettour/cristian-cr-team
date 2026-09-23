@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/Card";
-import { MatchCard } from "@/components/public/MatchCard";
+import { CollapsibleForm } from "@/components/admin/CollapsibleForm";
 import { getTorneoCompleto } from "@/lib/queries/tournaments";
 import { getJugadores } from "@/lib/queries/players";
 import { NewParejaForm } from "./NewParejaForm";
 import { NewZonaForm } from "./NewZonaForm";
 import { ZonaParejaToggle } from "./ZonaParejaToggle";
-import { NewPartidoEliminatoriaForm } from "./NewPartidoEliminatoriaForm";
 import { NewPartidoZonaForm } from "./NewPartidoZonaForm";
-import { BorrarPartidoButton } from "./BorrarPartidoButton";
+import { NewPartidoEliminatoriaForm } from "./NewPartidoEliminatoriaForm";
+import { MatchRow } from "./MatchRow";
 
-export default async function ArmadoPage({
+export default async function PartidosPage({
   params,
   searchParams,
 }: {
@@ -23,7 +23,8 @@ export default async function ArmadoPage({
 
   if (!torneo) notFound();
 
-  const torneoCategoria = torneo.torneo_categorias.find((tc) => tc.id === categoria) ?? torneo.torneo_categorias[0];
+  const torneoCategoria =
+    torneo.torneo_categorias.find((tc) => tc.id === categoria) ?? torneo.torneo_categorias[0];
 
   if (!torneoCategoria) {
     return (
@@ -34,12 +35,14 @@ export default async function ArmadoPage({
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 pb-16">
       <div>
         <h1 className="font-heading text-3xl text-white">
           {torneo.nombre} <span className="text-accent">· {torneoCategoria.categoria.nombre}</span>
         </h1>
-        <p className="text-sm text-foreground-muted">Armado de parejas, zonas y cuadro eliminatorio.</p>
+        <p className="text-sm text-foreground-muted">
+          Parejas, zonas, cuadro eliminatorio y resultados — todo en un solo lugar.
+        </p>
       </div>
 
       {torneo.torneo_categorias.length > 1 && (
@@ -82,15 +85,30 @@ export default async function ArmadoPage({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-heading text-xl text-white">Zonas</h2>
-        <Card className="p-5">
-          <NewZonaForm torneoId={torneo.id} torneoCategoriaId={torneoCategoria.id} />
-        </Card>
-        <div className="flex flex-col gap-3">
-          {torneoCategoria.zonas.map((zona) => (
-            <Card key={zona.id} className="flex flex-col gap-4 p-5">
-              <div>
-                <h3 className="mb-3 font-heading text-lg text-white">{zona.nombre}</h3>
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-xl text-white">Zonas</h2>
+          <CollapsibleForm label="Nueva zona">
+            <NewZonaForm torneoId={torneo.id} torneoCategoriaId={torneoCategoria.id} />
+          </CollapsibleForm>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {torneoCategoria.zonas.length === 0 && (
+            <p className="text-sm text-foreground-muted">Todavía no hay zonas armadas.</p>
+          )}
+          {torneoCategoria.zonas.map((zona) => {
+            const jugados = zona.partidos.filter((p) => p.estado === "finalizado").length;
+            return (
+              <Card key={zona.id} className="flex flex-col gap-4 p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-heading text-lg text-white">{zona.nombre}</h3>
+                  {zona.partidos.length > 0 && (
+                    <span className="text-xs text-foreground-muted">
+                      {jugados}/{zona.partidos.length} partidos jugados
+                    </span>
+                  )}
+                </div>
+
                 <div className="flex flex-wrap gap-2">
                   {torneoCategoria.parejas.map((p) => (
                     <ZonaParejaToggle
@@ -103,59 +121,45 @@ export default async function ArmadoPage({
                     />
                   ))}
                 </div>
-              </div>
 
-              <div className="border-t border-border-subtle pt-4">
-                <p className="mb-3 font-heading text-xs tracking-wide text-foreground-muted">
-                  Partidos de esta zona
-                </p>
-                <NewPartidoZonaForm
-                  torneoId={torneo.id}
-                  torneoCategoriaId={torneoCategoria.id}
-                  zonaId={zona.id}
-                  parejas={zona.parejas}
-                />
                 {zona.partidos.length > 0 && (
-                  <div className="mt-4 overflow-hidden rounded-2xl border border-border-subtle">
+                  <div className="overflow-hidden rounded-2xl border border-border-subtle">
                     {zona.partidos.map((p) => (
-                      <div key={p.id} className="border-b border-border-subtle last:border-b-0">
-                        <MatchCard partido={p} />
-                        <div className="flex justify-end px-4 pb-3 sm:px-6">
-                          <BorrarPartidoButton partidoId={p.id} torneoId={torneo.id} />
-                        </div>
-                      </div>
+                      <MatchRow key={p.id} partido={p} torneoId={torneo.id} />
                     ))}
                   </div>
                 )}
-              </div>
-            </Card>
-          ))}
+
+                <CollapsibleForm label="Nuevo partido">
+                  <NewPartidoZonaForm
+                    torneoId={torneo.id}
+                    torneoCategoriaId={torneoCategoria.id}
+                    zonaId={zona.id}
+                    parejas={zona.parejas}
+                  />
+                </CollapsibleForm>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="font-heading text-xl text-white">Cuadro eliminatorio</h2>
-        <Card className="p-5">
+        {torneoCategoria.partidos_eliminatoria.length > 0 && (
+          <div className="overflow-hidden rounded-2xl border border-border-subtle">
+            {torneoCategoria.partidos_eliminatoria.map((p) => (
+              <MatchRow key={p.id} partido={p} torneoId={torneo.id} />
+            ))}
+          </div>
+        )}
+        <CollapsibleForm label="Nuevo partido de eliminatoria">
           <NewPartidoEliminatoriaForm
             torneoId={torneo.id}
             torneoCategoriaId={torneoCategoria.id}
             parejas={torneoCategoria.parejas}
           />
-        </Card>
-        <div className="overflow-hidden rounded-2xl border border-border-subtle">
-          {torneoCategoria.partidos_eliminatoria.length === 0 ? (
-            <p className="p-5 text-foreground-muted">Todavía no hay partidos de eliminatoria.</p>
-          ) : (
-            torneoCategoria.partidos_eliminatoria.map((p) => (
-              <div key={p.id} className="border-b border-border-subtle last:border-b-0">
-                <MatchCard partido={p} />
-                <div className="flex justify-end px-4 pb-3 sm:px-6">
-                  <BorrarPartidoButton partidoId={p.id} torneoId={torneo.id} />
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        </CollapsibleForm>
       </section>
     </div>
   );

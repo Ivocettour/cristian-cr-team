@@ -49,20 +49,12 @@ export default async function AdminTorneoDetallePage({
                   {tc.parejas.length} parejas · {tc.zonas.length} zonas
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/admin/torneos/${torneo.id}/armado?categoria=${tc.id}`}
-                  className="min-h-11 rounded-full border border-white/20 px-4 py-2 font-heading text-xs tracking-wide text-white hover:border-white"
-                >
-                  Armar zonas y cuadro
-                </Link>
-                <Link
-                  href={`/admin/torneos/${torneo.id}/vivo?categoria=${tc.id}`}
-                  className="min-h-11 rounded-full bg-accent px-4 py-2 font-heading text-xs tracking-wide text-white hover:bg-accent-light"
-                >
-                  Cargar resultados
-                </Link>
-              </div>
+              <Link
+                href={`/admin/torneos/${torneo.id}/partidos?categoria=${tc.id}`}
+                className="min-h-11 rounded-full bg-accent px-4 py-2 font-heading text-xs tracking-wide text-white hover:bg-accent-light"
+              >
+                Gestionar partidos
+              </Link>
             </Card>
           ))}
         </div>

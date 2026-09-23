@@ -9,7 +9,7 @@ const DEMO_ERROR =
   "Supabase no está configurado todavía: este cambio no se puede guardar en modo demo. Ver README para conectar tu proyecto.";
 
 function revalidarArmado(torneoId: string) {
-  revalidatePath(`/admin/torneos/${torneoId}/armado`);
+  revalidatePath(`/admin/torneos/${torneoId}/partidos`);
   revalidatePath(`/torneos/${torneoId}`);
 }
 
