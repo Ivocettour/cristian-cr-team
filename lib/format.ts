@@ -12,15 +12,26 @@ export function nombreCompleto(j: Jugador): string {
   return `${j.nombre} ${j.apellido}`;
 }
 
+/**
+ * Parsea una fecha "YYYY-MM-DD" (sin hora) como medianoche LOCAL, no UTC.
+ * `new Date("2026-09-21")` se interpreta como UTC y, según la zona horaria
+ * de quien la formatea, puede mostrar el día anterior — este helper evita
+ * ese corrimiento para fechas de calendario puras (fecha_inicio/fecha_fin).
+ */
+export function parseFechaLocal(fecha: string): Date {
+  const [anio, mes, dia] = fecha.split("-").map(Number);
+  return new Date(anio, mes - 1, dia);
+}
+
 export function formatFechaCorta(fecha: string): string {
-  return new Date(fecha).toLocaleDateString("es-AR", {
+  return parseFechaLocal(fecha).toLocaleDateString("es-AR", {
     day: "2-digit",
     month: "short",
   });
 }
 
 export function formatFechaLarga(fecha: string): string {
-  return new Date(fecha).toLocaleDateString("es-AR", {
+  return parseFechaLocal(fecha).toLocaleDateString("es-AR", {
     day: "2-digit",
     month: "long",
     year: "numeric",

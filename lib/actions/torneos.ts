@@ -49,6 +49,37 @@ export async function crearTorneo(_prev: ActionState, formData: FormData): Promi
   redirect("/admin/torneos");
 }
 
+export async function editarTorneo(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  if (!isSupabaseConfigured()) return { error: DEMO_ERROR };
+
+  const torneo_id = String(formData.get("torneo_id") ?? "");
+  const nombre = String(formData.get("nombre") ?? "").trim();
+  const sede = String(formData.get("sede") ?? "").trim();
+  const fecha_inicio = String(formData.get("fecha_inicio") ?? "");
+  const fecha_fin = String(formData.get("fecha_fin") ?? "");
+
+  if (!nombre || !sede || !fecha_inicio || !fecha_fin) {
+    return { error: "Completá nombre, sede y fechas." };
+  }
+  if (fecha_fin < fecha_inicio) {
+    return { error: "La fecha de fin no puede ser anterior a la de inicio." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("torneo")
+    .update({ nombre, sede, fecha_inicio, fecha_fin })
+    .eq("id", torneo_id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/torneos");
+  revalidatePath(`/admin/torneos/${torneo_id}`);
+  revalidatePath("/torneos");
+  revalidatePath(`/torneos/${torneo_id}`);
+  return { error: null };
+}
+
 export async function crearTorneoCategoria(
   _prev: ActionState,
   formData: FormData

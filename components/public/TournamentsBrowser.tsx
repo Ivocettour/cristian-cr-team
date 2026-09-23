@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { TournamentCard } from "@/components/public/TournamentCard";
+import { parseFechaLocal } from "@/lib/format";
 import type { Torneo } from "@/lib/types";
 
 const MESES = [
@@ -11,7 +12,7 @@ const MESES = [
 
 export function TournamentsBrowser({ torneos }: { torneos: Torneo[] }) {
   const años = useMemo(() => {
-    const set = new Set(torneos.map((t) => new Date(t.fecha_inicio).getFullYear()));
+    const set = new Set(torneos.map((t) => parseFechaLocal(t.fecha_inicio).getFullYear()));
     return Array.from(set).sort();
   }, [torneos]);
 
@@ -19,7 +20,7 @@ export function TournamentsBrowser({ torneos }: { torneos: Torneo[] }) {
   const [mes, setMes] = useState<string>("todos");
 
   const filtrados = torneos.filter((t) => {
-    const fecha = new Date(t.fecha_inicio);
+    const fecha = parseFechaLocal(t.fecha_inicio);
     if (año !== "todos" && fecha.getFullYear() !== Number(año)) return false;
     if (mes !== "todos" && fecha.getMonth() !== Number(mes)) return false;
     return true;

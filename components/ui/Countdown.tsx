@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { parseFechaLocal } from "@/lib/format";
 
 function calcularRestante(target: number) {
   const diff = Math.max(0, target - Date.now());
@@ -13,7 +14,7 @@ function calcularRestante(target: number) {
 }
 
 export function Countdown({ target, label }: { target: string; label: string }) {
-  const targetMs = new Date(target).getTime();
+  const targetMs = parseFechaLocal(target).getTime();
   const [restante, setRestante] = useState(() => calcularRestante(targetMs));
 
   useEffect(() => {
