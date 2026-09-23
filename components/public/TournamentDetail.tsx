@@ -6,7 +6,7 @@ import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
 import { LiveResultsTab } from "@/components/public/LiveResultsTab";
 import { PlayerCard } from "@/components/public/PlayerCard";
-import { EliminationBracket } from "@/components/public/EliminationBracket";
+import { EliminationBracketTab } from "@/components/public/EliminationBracketTab";
 import { FollowTournamentButton } from "@/components/public/FollowTournamentButton";
 import { calcularPosiciones } from "@/lib/standings";
 import { formatFechaLarga } from "@/lib/format";
@@ -165,7 +165,11 @@ export function TournamentDetail({
           )}
 
           {tab === "cuadro" && (
-            <EliminationBracket partidos={torneoCategoria.partidos_eliminatoria} />
+            <EliminationBracketTab
+              key={categoriaId}
+              torneoCategoriaId={categoriaId}
+              partidosIniciales={torneoCategoria.partidos_eliminatoria}
+            />
           )}
 
           {tab === "jugadores" && (

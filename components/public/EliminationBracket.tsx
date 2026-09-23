@@ -56,12 +56,8 @@ function nombrePareja(p: ParejaConJugadores | null): string {
   return p ? `${p.jugador1.apellido} / ${p.jugador2.apellido}` : "A definir";
 }
 
-function setsGanados(partido: PartidoCompleto, lado: "a" | "b"): string {
-  if (partido.sets.length === 0) return "";
-  const ganados = partido.sets.filter((s) =>
-    lado === "a" ? s.games_pareja_a > s.games_pareja_b : s.games_pareja_b > s.games_pareja_a
-  ).length;
-  return String(ganados);
+function setsOrdenados(partido: PartidoCompleto) {
+  return [...partido.sets].sort((a, b) => a.numero_set - b.numero_set);
 }
 
 export function EliminationBracket({ partidos }: { partidos: PartidoCompleto[] }) {
@@ -142,6 +138,7 @@ export function EliminationBracket({ partidos }: { partidos: PartidoCompleto[] }
           columna.partidos.map((p) => {
             const esGanadorA = p.ganador_pareja_id !== null && p.ganador_pareja_id === p.pareja_a_id;
             const esGanadorB = p.ganador_pareja_id !== null && p.ganador_pareja_id === p.pareja_b_id;
+            const sets = setsOrdenados(p);
             return (
               <div
                 key={p.id}
@@ -163,10 +160,19 @@ export function EliminationBracket({ partidos }: { partidos: PartidoCompleto[] }
                   >
                     {nombrePareja(p.pareja_a)}
                   </span>
-                  <span
-                    className={`shrink-0 font-heading text-xs ${esGanadorA ? "text-win" : "text-foreground-muted"}`}
-                  >
-                    {setsGanados(p, "a")}
+                  <span className="flex shrink-0 items-center gap-1.5 font-heading text-xs">
+                    {sets.map((s) => (
+                      <span
+                        key={s.numero_set}
+                        className={
+                          s.games_pareja_a > s.games_pareja_b
+                            ? "text-win"
+                            : "text-foreground-muted"
+                        }
+                      >
+                        {s.games_pareja_a}
+                      </span>
+                    ))}
                   </span>
                 </div>
                 <div
@@ -179,10 +185,19 @@ export function EliminationBracket({ partidos }: { partidos: PartidoCompleto[] }
                   >
                     {nombrePareja(p.pareja_b)}
                   </span>
-                  <span
-                    className={`shrink-0 font-heading text-xs ${esGanadorB ? "text-win" : "text-foreground-muted"}`}
-                  >
-                    {setsGanados(p, "b")}
+                  <span className="flex shrink-0 items-center gap-1.5 font-heading text-xs">
+                    {sets.map((s) => (
+                      <span
+                        key={s.numero_set}
+                        className={
+                          s.games_pareja_b > s.games_pareja_a
+                            ? "text-win"
+                            : "text-foreground-muted"
+                        }
+                      >
+                        {s.games_pareja_b}
+                      </span>
+                    ))}
                   </span>
                 </div>
                 {p.estado !== "finalizado" && (
