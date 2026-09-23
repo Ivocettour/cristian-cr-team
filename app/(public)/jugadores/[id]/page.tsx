@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { MatchCard } from "@/components/public/MatchCard";
+import { FollowPlayerButton } from "@/components/public/FollowPlayerButton";
 import { paisToFlag, nombreCompleto } from "@/lib/format";
 import { getPerfilJugador } from "@/lib/queries/players";
+import { estaSiguiendoJugador, getUsuarioActual } from "@/lib/queries/social";
 
 export default async function JugadorPerfilPage({
   params,
@@ -16,14 +18,19 @@ export default async function JugadorPerfilPage({
   const { jugador, categoria, partidos } = perfil;
   const iniciales = `${jugador.nombre[0] ?? ""}${jugador.apellido[0] ?? ""}`;
 
+  const usuarioActual = await getUsuarioActual();
+  const siguiendoInicial = usuarioActual
+    ? await estaSiguiendoJugador(usuarioActual.id, id)
+    : false;
+
   return (
     <div className="py-10 sm:py-14">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <div className="flex flex-col items-center gap-4 border-b border-border-subtle pb-8 text-center sm:flex-row sm:text-left">
+        <div className="flex flex-col items-center gap-4 border-b border-border-subtle pb-8 text-center sm:flex-row sm:items-end sm:text-left">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-dark to-accent font-heading text-3xl text-white">
             {iniciales}
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-sm text-foreground-muted">
               {paisToFlag(jugador.pais)} {jugador.pais ?? "Sin país"}
             </p>
@@ -36,6 +43,11 @@ export default async function JugadorPerfilPage({
               </p>
             )}
           </div>
+          <FollowPlayerButton
+            jugadorId={jugador.id}
+            usuarioId={usuarioActual?.id ?? null}
+            siguiendoInicial={siguiendoInicial}
+          />
         </div>
 
         <div className="mt-8">

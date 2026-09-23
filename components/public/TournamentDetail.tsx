@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { LiveResultsTab } from "@/components/public/LiveResultsTab";
 import { PlayerCard } from "@/components/public/PlayerCard";
 import { MatchCard } from "@/components/public/MatchCard";
+import { FollowTournamentButton } from "@/components/public/FollowTournamentButton";
 import { calcularPosiciones } from "@/lib/standings";
 import { formatFechaLarga } from "@/lib/format";
 import type { PartidoCompleto, TorneoCompleto } from "@/lib/types";
@@ -27,7 +28,15 @@ const FASE_LABEL: Record<string, string> = {
   final: "Final",
 };
 
-export function TournamentDetail({ torneo }: { torneo: TorneoCompleto }) {
+export function TournamentDetail({
+  torneo,
+  usuarioId,
+  siguiendoInicial,
+}: {
+  torneo: TorneoCompleto;
+  usuarioId: string | null;
+  siguiendoInicial: boolean;
+}) {
   const [categoriaId, setCategoriaId] = useState(
     torneo.torneo_categorias[0]?.id ?? ""
   );
@@ -72,12 +81,19 @@ export function TournamentDetail({ torneo }: { torneo: TorneoCompleto }) {
   return (
     <div>
       <div className="border-b border-border-subtle bg-gradient-to-b from-panel to-background px-4 py-8 sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-6xl">
-          <Badge estado={torneo.estado} className="mb-3" />
-          <h1 className="font-heading text-3xl text-white sm:text-4xl">{torneo.nombre}</h1>
-          <p className="mt-1 text-sm text-foreground-muted">
-            {torneo.sede} · {formatFechaLarga(torneo.fecha_inicio)} – {formatFechaLarga(torneo.fecha_fin)}
-          </p>
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <Badge estado={torneo.estado} className="mb-3" />
+            <h1 className="font-heading text-3xl text-white sm:text-4xl">{torneo.nombre}</h1>
+            <p className="mt-1 text-sm text-foreground-muted">
+              {torneo.sede} · {formatFechaLarga(torneo.fecha_inicio)} – {formatFechaLarga(torneo.fecha_fin)}
+            </p>
+          </div>
+          <FollowTournamentButton
+            torneoId={torneo.id}
+            usuarioId={usuarioId}
+            siguiendoInicial={siguiendoInicial}
+          />
         </div>
       </div>
 

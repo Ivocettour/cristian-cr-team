@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { notificarTorneo } from "@/lib/notifications";
 
 export interface ActionState {
   error: string | null;
@@ -53,11 +54,28 @@ export async function crearTorneo(_prev: ActionState, formData: FormData): Promi
 export async function cambiarEstadoTorneo(torneoId: string, estado: "proximo" | "en_curso" | "finalizado") {
   if (!isSupabaseConfigured()) return;
   const supabase = await createClient();
-  await supabase.from("torneo").update({ estado }).eq("id", torneoId);
+  const { data: torneo } = await supabase
+    .from("torneo")
+    .update({ estado })
+    .eq("id", torneoId)
+    .select("nombre")
+    .maybeSingle();
+
   revalidatePath("/admin/torneos");
   revalidatePath(`/admin/torneos/${torneoId}`);
   revalidatePath("/torneos");
   revalidatePath(`/torneos/${torneoId}`);
+
+  if (torneo && (estado === "en_curso" || estado === "finalizado")) {
+    await notificarTorneo(torneoId, {
+      titulo: estado === "en_curso" ? `¡${torneo.nombre} ya está en vivo!` : `${torneo.nombre} finalizó`,
+      cuerpo:
+        estado === "en_curso"
+          ? "Seguí los resultados en vivo por cancha."
+          : "Mirá el resumen final del torneo.",
+      url: `/torneos/${torneoId}`,
+    });
+  }
 }
 
 export async function crearTorneoCategoria(

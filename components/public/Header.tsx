@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Countdown } from "@/components/ui/Countdown";
+import { NotificationBell } from "@/components/public/NotificationBell";
+import type { Notificacion } from "@/lib/types";
 
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -12,8 +14,12 @@ const NAV_LINKS = [
 
 export function Header({
   proximoTorneo,
+  usuarioActual,
+  notificacionesIniciales,
 }: {
   proximoTorneo: { nombre: string; fecha_inicio: string } | null;
+  usuarioActual: { id: string; email: string } | null;
+  notificacionesIniciales: Notificacion[];
 }) {
   const [open, setOpen] = useState(false);
 
@@ -49,6 +55,18 @@ export function Header({
           </nav>
 
           <div className="flex items-center gap-3">
+            {usuarioActual && (
+              <NotificationBell
+                usuarioId={usuarioActual.id}
+                notificacionesIniciales={notificacionesIniciales}
+              />
+            )}
+            <Link
+              href={usuarioActual ? "/cuenta" : "/cuenta/login"}
+              className="hidden font-heading text-xs tracking-wide text-foreground-muted hover:text-white lg:inline"
+            >
+              {usuarioActual ? "Mi cuenta" : "Ingresar"}
+            </Link>
             <Link
               href="/admin"
               className="hidden font-heading text-xs tracking-wide text-foreground-muted hover:text-white lg:inline"
@@ -93,6 +111,13 @@ export function Header({
                 {link.label}
               </Link>
             ))}
+            <Link
+              href={usuarioActual ? "/cuenta" : "/cuenta/login"}
+              onClick={() => setOpen(false)}
+              className="border-b border-white/10 py-4 font-heading text-xl text-foreground-muted"
+            >
+              {usuarioActual ? "Mi cuenta" : "Ingresar"}
+            </Link>
             <Link
               href="/admin"
               onClick={() => setOpen(false)}

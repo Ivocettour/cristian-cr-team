@@ -34,12 +34,24 @@ export async function updateSession(request: NextRequest) {
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = request.nextUrl.pathname.startsWith("/admin/login");
 
-  if (isAdminRoute && !isLoginRoute && !user) {
+  // No alcanza con estar logueado: puede ser una cuenta de espectador (/cuenta).
+  // Solo deja pasar a /admin/* a quien tenga fila en `usuario` (admin real).
+  let esAdmin = false;
+  if (user && isAdminRoute) {
+    const { data: filaUsuario } = await supabase
+      .from("usuario")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+    esAdmin = Boolean(filaUsuario);
+  }
+
+  if (isAdminRoute && !isLoginRoute && !esAdmin) {
     const loginUrl = new URL("/admin/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoginRoute && user) {
+  if (isLoginRoute && esAdmin) {
     const dashboardUrl = new URL("/admin", request.url);
     return NextResponse.redirect(dashboardUrl);
   }

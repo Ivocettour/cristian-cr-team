@@ -7,6 +7,16 @@ export interface Organizacion {
   nombre: string;
 }
 
+export interface Notificacion {
+  id: string;
+  usuario_id: string;
+  titulo: string;
+  cuerpo: string;
+  url: string | null;
+  leida: boolean;
+  creado_at: string;
+}
+
 export interface Categoria {
   id: string;
   organizacion_id: string;
