@@ -75,6 +75,47 @@ export async function alternarParejaEnZona(
   revalidarArmado(torneoId);
 }
 
+export async function crearPartidoZona(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  if (!isSupabaseConfigured()) return { error: DEMO_ERROR };
+
+  const torneo_categoria_id = String(formData.get("torneo_categoria_id") ?? "");
+  const torneo_id = String(formData.get("torneo_id") ?? "");
+  const zona_id = String(formData.get("zona_id") ?? "");
+  const cancha = String(formData.get("cancha") ?? "").trim();
+  const pareja_a_id = String(formData.get("pareja_a_id") ?? "");
+  const pareja_b_id = String(formData.get("pareja_b_id") ?? "");
+  const hora_inicio = String(formData.get("hora_inicio") ?? "");
+
+  if (!zona_id || !cancha || !pareja_a_id || !pareja_b_id || !hora_inicio) {
+    return { error: "Completá cancha, parejas y horario." };
+  }
+  if (pareja_a_id === pareja_b_id) return { error: "Las dos parejas tienen que ser distintas." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("partido").insert({
+    torneo_categoria_id,
+    zona_id,
+    fase: "zona",
+    cancha,
+    pareja_a_id,
+    pareja_b_id,
+    hora_inicio: new Date(hora_inicio).toISOString(),
+    estado: "pendiente",
+  });
+
+  if (error) return { error: error.message };
+
+  revalidarArmado(torneo_id);
+  return { error: null };
+}
+
+export async function eliminarPartido(partidoId: string, torneoId: string) {
+  if (!isSupabaseConfigured()) return;
+  const supabase = await createClient();
+  await supabase.from("partido").delete().eq("id", partidoId);
+  revalidarArmado(torneoId);
+}
+
 export async function crearPartidoEliminatoria(
   _prev: ActionState,
   formData: FormData

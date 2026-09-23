@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { notificarSeguidoresDeJugadores } from "@/lib/notifications";
 
-function revalidarVivo(torneoId: string) {
+function revalidarResultados(torneoId: string) {
   revalidatePath(`/admin/torneos/${torneoId}/vivo`);
   revalidatePath(`/torneos/${torneoId}`);
 }
@@ -46,12 +46,17 @@ async function obtenerContextoPartido(
   };
 }
 
+/**
+ * Marca el partido como "en curso" (solo para el badge EN VIVO del sitio
+ * público) — no carga ningún resultado, eso se hace de una sola vez al
+ * finalizar el partido con `finalizarPartido`.
+ */
 export async function iniciarPartido(partidoId: string, torneoId: string) {
   if (!isSupabaseConfigured()) return;
   const supabase = await createClient();
   const contexto = await obtenerContextoPartido(supabase, partidoId);
   await supabase.from("partido").update({ estado: "en_curso" }).eq("id", partidoId);
-  revalidarVivo(torneoId);
+  revalidarResultados(torneoId);
 
   if (contexto) {
     await notificarSeguidoresDeJugadores(contexto.jugadorIds, {
@@ -62,53 +67,42 @@ export async function iniciarPartido(partidoId: string, torneoId: string) {
   }
 }
 
-export async function ajustarSet(
-  partidoId: string,
-  torneoId: string,
-  numeroSet: number,
-  lado: "a" | "b",
-  delta: number
-) {
-  if (!isSupabaseConfigured()) return;
-  const supabase = await createClient();
-
-  const { data: existente } = await supabase
-    .from("set_resultado")
-    .select("*")
-    .eq("partido_id", partidoId)
-    .eq("numero_set", numeroSet)
-    .maybeSingle();
-
-  const campo = lado === "a" ? "games_pareja_a" : "games_pareja_b";
-
-  if (!existente) {
-    await supabase.from("set_resultado").insert({
-      partido_id: partidoId,
-      numero_set: numeroSet,
-      games_pareja_a: lado === "a" ? Math.max(0, delta) : 0,
-      games_pareja_b: lado === "b" ? Math.max(0, delta) : 0,
-    });
-  } else {
-    const valorActual = existente[campo] as number;
-    const nuevoValor = Math.max(0, Math.min(7, valorActual + delta));
-    await supabase
-      .from("set_resultado")
-      .update({ [campo]: nuevoValor })
-      .eq("id", existente.id);
-  }
-
-  revalidarVivo(torneoId);
+export interface SetInput {
+  numero_set: number;
+  games_pareja_a: number;
+  games_pareja_b: number;
 }
 
+/**
+ * Carga el resultado final de un partido en una sola operación: los sets
+ * jugados y la pareja ganadora. No hay carga incremental en vivo — el
+ * planillero completa el resultado una vez terminado el partido.
+ */
 export async function finalizarPartido(
   partidoId: string,
   torneoId: string,
+  sets: SetInput[],
   ganadorParejaId: string,
   duracionMinutos: number | null
 ) {
   if (!isSupabaseConfigured()) return;
   const supabase = await createClient();
   const contexto = await obtenerContextoPartido(supabase, partidoId);
+
+  const setsJugados = sets.filter((s) => s.games_pareja_a > 0 || s.games_pareja_b > 0);
+
+  await supabase.from("set_resultado").delete().eq("partido_id", partidoId);
+  if (setsJugados.length > 0) {
+    await supabase.from("set_resultado").insert(
+      setsJugados.map((s) => ({
+        partido_id: partidoId,
+        numero_set: s.numero_set,
+        games_pareja_a: s.games_pareja_a,
+        games_pareja_b: s.games_pareja_b,
+      }))
+    );
+  }
+
   await supabase
     .from("partido")
     .update({
@@ -117,7 +111,8 @@ export async function finalizarPartido(
       duracion_minutos: duracionMinutos,
     })
     .eq("id", partidoId);
-  revalidarVivo(torneoId);
+
+  revalidarResultados(torneoId);
 
   if (contexto) {
     await notificarSeguidoresDeJugadores(contexto.jugadorIds, {
@@ -126,4 +121,16 @@ export async function finalizarPartido(
       url: `/torneos/${torneoId}`,
     });
   }
+}
+
+/** Deshace un resultado cargado por error: vuelve el partido a pendiente. */
+export async function reabrirPartido(partidoId: string, torneoId: string) {
+  if (!isSupabaseConfigured()) return;
+  const supabase = await createClient();
+  await supabase
+    .from("partido")
+    .update({ estado: "pendiente", ganador_pareja_id: null, duracion_minutos: null })
+    .eq("id", partidoId);
+  await supabase.from("set_resultado").delete().eq("partido_id", partidoId);
+  revalidarResultados(torneoId);
 }

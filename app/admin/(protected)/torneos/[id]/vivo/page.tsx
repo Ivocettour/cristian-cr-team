@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTorneoCompleto } from "@/lib/queries/tournaments";
-import { LiveMatchCard } from "./LiveMatchCard";
+import { ResultadoMatchCard } from "./ResultadoMatchCard";
 
 export default async function VivoPage({
   params,
@@ -36,7 +36,7 @@ export default async function VivoPage({
     <div className="flex flex-col gap-6 pb-16">
       <div>
         <h1 className="font-heading text-3xl text-white">
-          Carga en vivo <span className="text-accent">· {torneoCategoria.categoria.nombre}</span>
+          Cargar resultados <span className="text-accent">· {torneoCategoria.categoria.nombre}</span>
         </h1>
         <p className="text-sm text-foreground-muted">{torneo.nombre}</p>
       </div>
@@ -64,7 +64,7 @@ export default async function VivoPage({
           <p className="text-foreground-muted">No hay partidos pendientes o en curso.</p>
         )}
         {partidos.map((p) => (
-          <LiveMatchCard key={p.id} partido={p} torneoId={torneo.id} />
+          <ResultadoMatchCard key={p.id} partido={p} torneoId={torneo.id} />
         ))}
       </div>
 
@@ -75,7 +75,7 @@ export default async function VivoPage({
           </summary>
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {finalizados.map((p) => (
-              <LiveMatchCard key={p.id} partido={p} torneoId={torneo.id} />
+              <ResultadoMatchCard key={p.id} partido={p} torneoId={torneo.id} />
             ))}
           </div>
         </details>

@@ -7,6 +7,8 @@ import { NewParejaForm } from "./NewParejaForm";
 import { NewZonaForm } from "./NewZonaForm";
 import { ZonaParejaToggle } from "./ZonaParejaToggle";
 import { NewPartidoEliminatoriaForm } from "./NewPartidoEliminatoriaForm";
+import { NewPartidoZonaForm } from "./NewPartidoZonaForm";
+import { BorrarPartidoButton } from "./BorrarPartidoButton";
 
 export default async function ArmadoPage({
   params,
@@ -86,19 +88,45 @@ export default async function ArmadoPage({
         </Card>
         <div className="flex flex-col gap-3">
           {torneoCategoria.zonas.map((zona) => (
-            <Card key={zona.id} className="p-5">
-              <h3 className="mb-3 font-heading text-lg text-white">{zona.nombre}</h3>
-              <div className="flex flex-wrap gap-2">
-                {torneoCategoria.parejas.map((p) => (
-                  <ZonaParejaToggle
-                    key={p.id}
-                    zonaId={zona.id}
-                    parejaId={p.id}
-                    torneoId={torneo.id}
-                    asignada={zona.parejas.some((zp) => zp.id === p.id)}
-                    label={`${p.jugador1.apellido} / ${p.jugador2.apellido}`}
-                  />
-                ))}
+            <Card key={zona.id} className="flex flex-col gap-4 p-5">
+              <div>
+                <h3 className="mb-3 font-heading text-lg text-white">{zona.nombre}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {torneoCategoria.parejas.map((p) => (
+                    <ZonaParejaToggle
+                      key={p.id}
+                      zonaId={zona.id}
+                      parejaId={p.id}
+                      torneoId={torneo.id}
+                      asignada={zona.parejas.some((zp) => zp.id === p.id)}
+                      label={`${p.jugador1.apellido} / ${p.jugador2.apellido}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-border-subtle pt-4">
+                <p className="mb-3 font-heading text-xs tracking-wide text-foreground-muted">
+                  Partidos de esta zona
+                </p>
+                <NewPartidoZonaForm
+                  torneoId={torneo.id}
+                  torneoCategoriaId={torneoCategoria.id}
+                  zonaId={zona.id}
+                  parejas={zona.parejas}
+                />
+                {zona.partidos.length > 0 && (
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-border-subtle">
+                    {zona.partidos.map((p) => (
+                      <div key={p.id} className="border-b border-border-subtle last:border-b-0">
+                        <MatchCard partido={p} />
+                        <div className="flex justify-end px-4 pb-3 sm:px-6">
+                          <BorrarPartidoButton partidoId={p.id} torneoId={torneo.id} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
           ))}
@@ -118,7 +146,14 @@ export default async function ArmadoPage({
           {torneoCategoria.partidos_eliminatoria.length === 0 ? (
             <p className="p-5 text-foreground-muted">Todavía no hay partidos de eliminatoria.</p>
           ) : (
-            torneoCategoria.partidos_eliminatoria.map((p) => <MatchCard key={p.id} partido={p} />)
+            torneoCategoria.partidos_eliminatoria.map((p) => (
+              <div key={p.id} className="border-b border-border-subtle last:border-b-0">
+                <MatchCard partido={p} />
+                <div className="flex justify-end px-4 pb-3 sm:px-6">
+                  <BorrarPartidoButton partidoId={p.id} torneoId={torneo.id} />
+                </div>
+              </div>
+            ))
           )}
         </div>
       </section>
