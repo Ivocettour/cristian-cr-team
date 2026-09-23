@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Club Pádel del Sur — Torneos",
+  title: "CR&LB team — Torneos",
   description: "Torneos, cuadros, zonas y resultados en vivo.",
 };
 

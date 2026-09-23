@@ -2,7 +2,7 @@
 -- Corré esto después de 0001_init.sql (SQL Editor de Supabase).
 
 insert into organizacion (id, nombre) values
-  ('a0000000-0000-0000-0000-000000000001', 'Club Pádel del Sur');
+  ('a0000000-0000-0000-0000-000000000001', 'CR&LB team');
 
 insert into categoria (id, organizacion_id, nombre) values
   ('c0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', '1ra'),
@@ -24,8 +24,8 @@ insert into jugador (id, organizacion_id, nombre, apellido, categoria_actual_id,
   ('b0000000-0000-0000-0000-000000000012', 'a0000000-0000-0000-0000-000000000001', 'Santiago', 'Luna', 'c0000000-0000-0000-0000-000000000002', 'AR', null);
 
 insert into torneo (id, organizacion_id, nombre, sede, fecha_inicio, fecha_fin, estado, imagen_url) values
-  ('90000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Master Cup Otoño', 'Club Pádel del Sur', current_date - 1, current_date + 2, 'en_curso', null),
-  ('90000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Copa Primavera', 'Club Pádel del Sur', current_date + 20, current_date + 23, 'proximo', null);
+  ('90000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Master Cup Otoño', 'CR&LB team', current_date - 1, current_date + 2, 'en_curso', null),
+  ('90000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Copa Primavera', 'CR&LB team', current_date + 20, current_date + 23, 'proximo', null);
 
 insert into torneo_categoria (id, torneo_id, categoria_id, formato, estado) values
   ('d0000000-0000-0000-0000-000000000001', '90000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'zonas_y_eliminacion', 'en_curso'),

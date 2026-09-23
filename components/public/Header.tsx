@@ -33,7 +33,7 @@ export function Header({
       <header className="sticky top-0 z-40 border-b border-border-subtle bg-black/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="font-heading text-xl text-white">
-            CLUB PÁDEL <span className="text-accent">DEL SUR</span>
+            CR&amp;LB <span className="text-accent">TEAM</span>
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">

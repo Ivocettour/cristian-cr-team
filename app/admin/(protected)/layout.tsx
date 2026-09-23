@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <SupabaseBanner />
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border-subtle bg-black/80 px-4 backdrop-blur sm:px-6">
         <Link href="/admin" className="font-heading text-lg text-white">
-          PANEL ADMIN <span className="text-accent">·</span> CLUB PÁDEL DEL SUR
+          PANEL ADMIN <span className="text-accent">·</span> CR&LB TEAM
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/" className="hidden font-heading text-xs tracking-wide text-foreground-muted hover:text-white sm:inline">

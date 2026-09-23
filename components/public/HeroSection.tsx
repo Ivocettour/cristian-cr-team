@@ -13,7 +13,7 @@ export function HeroSection() {
       />
       <div className="relative mx-auto max-w-3xl text-center">
         <p className="mb-3 font-heading text-sm tracking-widest text-accent-light">
-          Club Pádel del Sur
+          CR&LB team
         </p>
         <h1 className="font-heading text-[clamp(2.5rem,9vw,5.5rem)] leading-[0.95] text-white">
           TORNEOS, ZONAS Y RESULTADOS EN VIVO

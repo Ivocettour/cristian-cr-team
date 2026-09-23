@@ -1,7 +1,7 @@
 import { TournamentsBrowser } from "@/components/public/TournamentsBrowser";
 import { getTorneos } from "@/lib/queries/tournaments";
 
-export const metadata = { title: "Torneos — Club Pádel del Sur" };
+export const metadata = { title: "Torneos — CR&LB team" };
 
 export default async function TorneosPage() {
   const torneos = await getTorneos();

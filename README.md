@@ -1,4 +1,4 @@
-# Club Pádel del Sur — Plataforma de torneos
+# CR&LB team — Plataforma de torneos
 
 Plataforma web para gestión y difusión de torneos de pádel: panel admin privado
 + sitio público sin login, con resultados en vivo por cancha vía Supabase

@@ -12,7 +12,7 @@ import type {
  * Ver lib/queries/*.ts: se usan como fallback cuando isSupabaseConfigured() es false.
  */
 
-export const mockOrganizacion = { id: "org-1", nombre: "Club Pádel del Sur" };
+export const mockOrganizacion = { id: "org-1", nombre: "CR&LB team" };
 
 export const mockCategorias: Categoria[] = [
   { id: "cat-1ra", organizacion_id: "org-1", nombre: "1ra" },
@@ -147,7 +147,7 @@ export const mockTorneos: TorneoCompleto[] = [
     id: "t1",
     organizacion_id: "org-1",
     nombre: "Master Cup Otoño",
-    sede: "Club Pádel del Sur",
+    sede: "CR&LB team",
     fecha_inicio: new Date(ahora - 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     fecha_fin: new Date(ahora + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     estado: "en_curso",
@@ -186,7 +186,7 @@ export const mockTorneos: TorneoCompleto[] = [
     id: "t2",
     organizacion_id: "org-1",
     nombre: "Copa Primavera",
-    sede: "Club Pádel del Sur",
+    sede: "CR&LB team",
     fecha_inicio: new Date(ahora + 20 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     fecha_fin: new Date(ahora + 23 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     estado: "proximo",

@@ -1,7 +1,7 @@
 import { PlayerCard } from "@/components/public/PlayerCard";
 import { getCategorias, getJugadores } from "@/lib/queries/players";
 
-export const metadata = { title: "Jugadores — Club Pádel del Sur" };
+export const metadata = { title: "Jugadores — CR&LB team" };
 
 export default async function JugadoresPage() {
   const [jugadores, categorias] = await Promise.all([getJugadores(), getCategorias()]);
