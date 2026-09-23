@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { formatFechaLarga } from "@/lib/format";
 import { getTorneoCompleto } from "@/lib/queries/tournaments";
 import { getCategorias } from "@/lib/queries/players";
-import { EstadoTorneoButtons } from "./EstadoTorneoButtons";
 import { NewSubtorneoForm } from "./NewSubtorneoForm";
 
 export default async function AdminTorneoDetallePage({
@@ -24,15 +24,14 @@ export default async function AdminTorneoDetallePage({
   return (
     <div className="flex flex-col gap-8">
       <div>
+        <Badge estado={torneo.estado} className="mb-3" />
         <h1 className="font-heading text-3xl text-white">{torneo.nombre}</h1>
         <p className="text-sm text-foreground-muted">
           {torneo.sede} · {formatFechaLarga(torneo.fecha_inicio)} – {formatFechaLarga(torneo.fecha_fin)}
         </p>
-      </div>
-
-      <div>
-        <p className="mb-2 font-heading text-xs tracking-wide text-foreground-muted">Estado</p>
-        <EstadoTorneoButtons torneoId={torneo.id} estadoActual={torneo.estado} />
+        <p className="mt-1 text-xs text-foreground-muted">
+          El estado se calcula solo según las fechas del torneo.
+        </p>
       </div>
 
       <section>

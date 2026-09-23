@@ -1,6 +1,7 @@
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { mockTorneos } from "@/lib/mock-data";
+import { calcularEstadoTorneo } from "@/lib/torneo-estado";
 import type {
   ParejaConJugadores,
   PartidoCompleto,
@@ -10,11 +11,15 @@ import type {
   ZonaConTabla,
 } from "@/lib/types";
 
+function conEstadoCalculado<T extends { fecha_inicio: string; fecha_fin: string }>(torneo: T): T {
+  return { ...torneo, estado: calcularEstadoTorneo(torneo.fecha_inicio, torneo.fecha_fin) };
+}
+
 export async function getTorneos(): Promise<Torneo[]> {
   if (!isSupabaseConfigured()) {
     return mockTorneos.map(({ torneo_categorias, ...t }) => {
       void torneo_categorias;
-      return t;
+      return conEstadoCalculado(t);
     });
   }
 
@@ -25,12 +30,13 @@ export async function getTorneos(): Promise<Torneo[]> {
     .order("fecha_inicio", { ascending: true });
 
   if (error) throw error;
-  return data as Torneo[];
+  return (data as Torneo[]).map(conEstadoCalculado);
 }
 
 export async function getTorneoCompleto(id: string): Promise<TorneoCompleto | null> {
   if (!isSupabaseConfigured()) {
-    return mockTorneos.find((t) => t.id === id) ?? null;
+    const encontrado = mockTorneos.find((t) => t.id === id);
+    return encontrado ? conEstadoCalculado(encontrado) : null;
   }
 
   const supabase = await createClient();
@@ -95,5 +101,5 @@ export async function getTorneoCompleto(id: string): Promise<TorneoCompleto | nu
     });
   }
 
-  return { ...torneo, torneo_categorias };
+  return conEstadoCalculado({ ...torneo, torneo_categorias });
 }

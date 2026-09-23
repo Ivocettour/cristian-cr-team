@@ -22,16 +22,6 @@ async function notificarUsuarios(usuarioIds: string[], payload: PushPayload) {
   await enviarPushASuscripciones(suscripciones ?? [], payload);
 }
 
-export async function notificarTorneo(torneoId: string, payload: PushPayload) {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("seguimiento_torneo")
-    .select("usuario_id")
-    .eq("torneo_id", torneoId);
-
-  await notificarUsuarios((data ?? []).map((r) => r.usuario_id), payload);
-}
-
 export async function notificarSeguidoresDeJugadores(
   jugadorIds: string[],
   payload: PushPayload
