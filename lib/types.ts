@@ -84,12 +84,16 @@ export interface Partido {
   fase: FasePartido;
   zona_id: string | null;
   cancha: string;
-  pareja_a_id: string;
-  pareja_b_id: string;
+  // null cuando el cruce todavía depende del ganador de otro partido
+  // (ver feeder_a_partido_id / feeder_b_partido_id) — "A definir".
+  pareja_a_id: string | null;
+  pareja_b_id: string | null;
   estado: EstadoPartido;
   hora_inicio: string;
   ganador_pareja_id: string | null;
   duracion_minutos: number | null;
+  feeder_a_partido_id: string | null;
+  feeder_b_partido_id: string | null;
 }
 
 // Tipos "enriquecidos" usados en la UI, con las relaciones ya resueltas.
@@ -100,8 +104,8 @@ export interface ParejaConJugadores extends Pareja {
 }
 
 export interface PartidoCompleto extends Partido {
-  pareja_a: ParejaConJugadores;
-  pareja_b: ParejaConJugadores;
+  pareja_a: ParejaConJugadores | null;
+  pareja_b: ParejaConJugadores | null;
   sets: SetScore[];
 }
 

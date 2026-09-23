@@ -25,6 +25,7 @@ export function calcularPosiciones(zona: ZonaConTabla): FilaPosiciones[] {
 
   for (const partido of zona.partidos) {
     if (partido.estado !== "finalizado") continue;
+    if (!partido.pareja_a_id || !partido.pareja_b_id) continue;
 
     const filaA = filas.get(partido.pareja_a_id);
     const filaB = filas.get(partido.pareja_b_id);

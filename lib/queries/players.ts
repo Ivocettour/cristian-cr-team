@@ -39,10 +39,10 @@ export async function getPerfilJugador(id: string): Promise<PerfilJugador | null
     const categoria = mockCategorias.find((c) => c.id === jugador.categoria_actual_id) ?? null;
     const partidos = todosLosPartidos().filter(
       (p) =>
-        p.pareja_a.jugador1_id === id ||
-        p.pareja_a.jugador2_id === id ||
-        p.pareja_b.jugador1_id === id ||
-        p.pareja_b.jugador2_id === id
+        p.pareja_a?.jugador1_id === id ||
+        p.pareja_a?.jugador2_id === id ||
+        p.pareja_b?.jugador1_id === id ||
+        p.pareja_b?.jugador2_id === id
     );
     return { jugador, categoria, partidos };
   }

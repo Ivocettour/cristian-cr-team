@@ -7,25 +7,31 @@ function FilaPareja({
   sets,
   esGanador,
 }: {
-  pareja: ParejaConJugadores;
+  pareja: ParejaConJugadores | null;
   sets: { valor: number; ganado: boolean }[];
   esGanador: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2.5">
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        {esGanador && (
+        {esGanador && pareja && (
           <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-win text-[10px] font-bold text-black">
             W
           </span>
         )}
         <div className="min-w-0">
-          <p className="truncate text-sm text-white">
-            {paisToFlag(pareja.jugador1.pais)} {nombreCompleto(pareja.jugador1)}
-          </p>
-          <p className="truncate text-sm text-white">
-            {paisToFlag(pareja.jugador2.pais)} {nombreCompleto(pareja.jugador2)}
-          </p>
+          {pareja ? (
+            <>
+              <p className="truncate text-sm text-white">
+                {paisToFlag(pareja.jugador1.pais)} {nombreCompleto(pareja.jugador1)}
+              </p>
+              <p className="truncate text-sm text-white">
+                {paisToFlag(pareja.jugador2.pais)} {nombreCompleto(pareja.jugador2)}
+              </p>
+            </>
+          ) : (
+            <p className="truncate text-sm italic text-foreground-muted">A definir</p>
+          )}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">

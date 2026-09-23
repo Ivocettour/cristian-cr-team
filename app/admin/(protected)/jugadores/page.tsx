@@ -1,8 +1,7 @@
 import { Card } from "@/components/ui/Card";
-import { paisToFlag, nombreCompleto } from "@/lib/format";
 import { getCategorias, getJugadores } from "@/lib/queries/players";
 import { NewJugadorForm } from "./NewJugadorForm";
-import { CategoriaSelect } from "./CategoriaSelect";
+import { JugadorRow } from "./JugadorRow";
 
 export default async function AdminJugadoresPage() {
   const [jugadores, categorias] = await Promise.all([getJugadores(), getCategorias()]);
@@ -22,16 +21,7 @@ export default async function AdminJugadoresPage() {
 
       <div className="flex flex-col gap-2">
         {jugadores.map((j) => (
-          <Card key={j.id} className="flex flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center">
-            <span className="font-heading text-white">
-              {paisToFlag(j.pais)} {nombreCompleto(j)}
-            </span>
-            <CategoriaSelect
-              jugadorId={j.id}
-              categoriaActualId={j.categoria_actual_id}
-              categorias={categorias}
-            />
-          </Card>
+          <JugadorRow key={j.id} jugador={j} categorias={categorias} />
         ))}
       </div>
     </div>

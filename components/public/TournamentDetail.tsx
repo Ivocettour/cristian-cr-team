@@ -6,7 +6,7 @@ import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { Card } from "@/components/ui/Card";
 import { LiveResultsTab } from "@/components/public/LiveResultsTab";
 import { PlayerCard } from "@/components/public/PlayerCard";
-import { MatchCard } from "@/components/public/MatchCard";
+import { EliminationBracket } from "@/components/public/EliminationBracket";
 import { FollowTournamentButton } from "@/components/public/FollowTournamentButton";
 import { calcularPosiciones } from "@/lib/standings";
 import { formatFechaLarga } from "@/lib/format";
@@ -19,14 +19,6 @@ const TABS: TabItem[] = [
   { id: "jugadores", label: "Jugadores" },
   { id: "info", label: "Información" },
 ];
-
-const FASE_LABEL: Record<string, string> = {
-  zona: "Fase de zonas",
-  octavos: "Octavos de final",
-  cuartos: "Cuartos de final",
-  semi: "Semifinal",
-  final: "Final",
-};
 
 export function TournamentDetail({
   torneo,
@@ -65,17 +57,6 @@ export function TournamentDetail({
       }
     }
     return lista;
-  }, [torneoCategoria]);
-
-  const partidosPorFase = useMemo(() => {
-    if (!torneoCategoria) return new Map<string, PartidoCompleto[]>();
-    const map = new Map<string, PartidoCompleto[]>();
-    for (const p of torneoCategoria.partidos_eliminatoria) {
-      const lista = map.get(p.fase) ?? [];
-      lista.push(p);
-      map.set(p.fase, lista);
-    }
-    return map;
   }, [torneoCategoria]);
 
   return (
@@ -184,23 +165,7 @@ export function TournamentDetail({
           )}
 
           {tab === "cuadro" && (
-            <div className="flex flex-col gap-6 px-4 sm:px-6">
-              {partidosPorFase.size === 0 && (
-                <p className="text-foreground-muted">Todavía no hay cuadro eliminatorio cargado.</p>
-              )}
-              {Array.from(partidosPorFase.entries()).map(([fase, partidos]) => (
-                <Card key={fase} className="overflow-hidden">
-                  <div className="border-b border-border-subtle px-5 py-3">
-                    <h3 className="font-heading text-lg text-white">
-                      {FASE_LABEL[fase] ?? fase}
-                    </h3>
-                  </div>
-                  {partidos.map((p) => (
-                    <MatchCard key={p.id} partido={p} />
-                  ))}
-                </Card>
-              ))}
-            </div>
+            <EliminationBracket partidos={torneoCategoria.partidos_eliminatoria} />
           )}
 
           {tab === "jugadores" && (

@@ -53,3 +53,46 @@ export async function actualizarCategoriaJugador(jugadorId: string, categoriaId:
   revalidatePath("/admin/jugadores");
   revalidatePath("/jugadores");
 }
+
+export async function editarJugador(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  if (!isSupabaseConfigured()) return { error: DEMO_ERROR };
+
+  const jugador_id = String(formData.get("jugador_id") ?? "");
+  const nombre = String(formData.get("nombre") ?? "").trim();
+  const apellido = String(formData.get("apellido") ?? "").trim();
+  const pais = String(formData.get("pais") ?? "").trim().toUpperCase() || null;
+
+  if (!nombre || !apellido) return { error: "Completá nombre y apellido." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("jugador")
+    .update({ nombre, apellido, pais })
+    .eq("id", jugador_id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/jugadores");
+  revalidatePath("/jugadores");
+  revalidatePath(`/jugadores/${jugador_id}`);
+  return { error: null };
+}
+
+export async function eliminarJugador(jugadorId: string): Promise<ActionState> {
+  if (!isSupabaseConfigured()) return { error: DEMO_ERROR };
+  const supabase = await createClient();
+  const { error } = await supabase.from("jugador").delete().eq("id", jugadorId);
+
+  if (error) {
+    if (error.code === "23503") {
+      return {
+        error: "No se puede borrar: este jugador ya forma parte de una pareja en algún torneo.",
+      };
+    }
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/jugadores");
+  revalidatePath("/jugadores");
+  return { error: null };
+}

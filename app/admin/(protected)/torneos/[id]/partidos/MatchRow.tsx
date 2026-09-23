@@ -8,7 +8,7 @@ import { formatHora } from "@/lib/format";
 import type { PartidoCompleto } from "@/lib/types";
 
 function nombrePareja(p: PartidoCompleto["pareja_a"]) {
-  return `${p.jugador1.apellido} / ${p.jugador2.apellido}`;
+  return p ? `${p.jugador1.apellido} / ${p.jugador2.apellido}` : "A definir";
 }
 
 const inputClass =
@@ -34,6 +34,7 @@ export function MatchRow({ partido, torneoId }: { partido: PartidoCompleto; torn
   });
 
   const finalizado = partido.estado === "finalizado";
+  const definido = Boolean(partido.pareja_a_id && partido.pareja_b_id);
 
   function actualizarSet(index: number, lado: "games_pareja_a" | "games_pareja_b", valor: string) {
     const numero = Math.max(0, Math.min(7, Number(valor) || 0));
@@ -74,7 +75,7 @@ export function MatchRow({ partido, torneoId }: { partido: PartidoCompleto; torn
         <span>{partido.cancha}</span>
         {!finalizado && <span>{formatHora(partido.hora_inicio)}</span>}
         {partido.duracion_minutos && <span>{partido.duracion_minutos}m</span>}
-        {partido.estado === "pendiente" && (
+        {definido && partido.estado === "pendiente" && (
           <button
             disabled={isPending}
             onClick={() => startTransition(() => iniciarPartido(partido.id, torneoId))}
@@ -86,13 +87,18 @@ export function MatchRow({ partido, torneoId }: { partido: PartidoCompleto; torn
       </div>
 
       <div className="mt-2 flex items-center gap-3">
-        {!finalizado && (
+        {!finalizado && definido && (
           <button
             onClick={() => setCargandoResultado((v) => !v)}
             className="min-h-11 rounded-full bg-accent px-4 font-heading text-xs tracking-wide text-white hover:bg-accent-light"
           >
             {cargandoResultado ? "Cerrar" : "Cargar resultado"}
           </button>
+        )}
+        {!finalizado && !definido && (
+          <span className="text-xs italic text-foreground-muted">
+            Esperando resultados anteriores
+          </span>
         )}
         {finalizado && (
           <button

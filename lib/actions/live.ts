@@ -33,11 +33,13 @@ async function obtenerContextoPartido(
   const parejaA = data.pareja_a as unknown as {
     jugador1: { id: string; apellido: string };
     jugador2: { id: string; apellido: string };
-  };
+  } | null;
   const parejaB = data.pareja_b as unknown as {
     jugador1: { id: string; apellido: string };
     jugador2: { id: string; apellido: string };
-  };
+  } | null;
+
+  if (!parejaA || !parejaB) return null;
 
   return {
     jugadorIds: [parejaA.jugador1.id, parejaA.jugador2.id, parejaB.jugador1.id, parejaB.jugador2.id],
@@ -71,6 +73,26 @@ export interface SetInput {
   numero_set: number;
   games_pareja_a: number;
   games_pareja_b: number;
+}
+
+/**
+ * Avance automático del cuadro: si algún partido depende del ganador de
+ * `partidoId` (feeder_a_partido_id / feeder_b_partido_id), le completa la
+ * pareja correspondiente.
+ */
+async function avanzarGanador(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  partidoId: string,
+  ganadorParejaId: string | null
+) {
+  await supabase
+    .from("partido")
+    .update({ pareja_a_id: ganadorParejaId })
+    .eq("feeder_a_partido_id", partidoId);
+  await supabase
+    .from("partido")
+    .update({ pareja_b_id: ganadorParejaId })
+    .eq("feeder_b_partido_id", partidoId);
 }
 
 /**
@@ -112,6 +134,8 @@ export async function finalizarPartido(
     })
     .eq("id", partidoId);
 
+  await avanzarGanador(supabase, partidoId, ganadorParejaId);
+
   revalidarResultados(torneoId);
 
   if (contexto) {
@@ -123,7 +147,11 @@ export async function finalizarPartido(
   }
 }
 
-/** Deshace un resultado cargado por error: vuelve el partido a pendiente. */
+/**
+ * Deshace un resultado cargado por error: vuelve el partido a pendiente y,
+ * si alimentaba a otro cruce del cuadro, deshace también ese avance (esa
+ * pareja vuelve a "A definir").
+ */
 export async function reabrirPartido(partidoId: string, torneoId: string) {
   if (!isSupabaseConfigured()) return;
   const supabase = await createClient();
@@ -132,5 +160,6 @@ export async function reabrirPartido(partidoId: string, torneoId: string) {
     .update({ estado: "pendiente", ganador_pareja_id: null, duracion_minutos: null })
     .eq("id", partidoId);
   await supabase.from("set_resultado").delete().eq("partido_id", partidoId);
+  await avanzarGanador(supabase, partidoId, null);
   revalidarResultados(torneoId);
 }

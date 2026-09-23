@@ -80,6 +80,15 @@ export async function editarTorneo(_prev: ActionState, formData: FormData): Prom
   return { error: null };
 }
 
+export async function eliminarTorneo(torneoId: string) {
+  if (!isSupabaseConfigured()) return;
+  const supabase = await createClient();
+  await supabase.from("torneo").delete().eq("id", torneoId);
+  revalidatePath("/admin/torneos");
+  revalidatePath("/torneos");
+  redirect("/admin/torneos");
+}
+
 export async function crearTorneoCategoria(
   _prev: ActionState,
   formData: FormData

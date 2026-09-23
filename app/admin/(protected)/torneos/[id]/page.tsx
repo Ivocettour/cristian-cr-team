@@ -7,6 +7,7 @@ import { getTorneoCompleto } from "@/lib/queries/tournaments";
 import { getCategorias } from "@/lib/queries/players";
 import { NewSubtorneoForm } from "./NewSubtorneoForm";
 import { EditTorneoForm } from "./EditTorneoForm";
+import { BorrarTorneoButton } from "./BorrarTorneoButton";
 
 export default async function AdminTorneoDetallePage({
   params,
@@ -33,8 +34,9 @@ export default async function AdminTorneoDetallePage({
         <p className="mt-1 text-xs text-foreground-muted">
           El estado se calcula solo según las fechas del torneo.
         </p>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap gap-2">
           <EditTorneoForm torneo={torneo} />
+          <BorrarTorneoButton torneoId={torneo.id} nombre={torneo.nombre} />
         </div>
       </div>
 

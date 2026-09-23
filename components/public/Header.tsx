@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Countdown } from "@/components/ui/Countdown";
 import { NotificationBell } from "@/components/public/NotificationBell";
+import { SearchOverlay } from "@/components/public/SearchOverlay";
 import type { Notificacion } from "@/lib/types";
 
 const NAV_LINKS = [
@@ -55,6 +56,7 @@ export function Header({
           </nav>
 
           <div className="flex items-center gap-3">
+            <SearchOverlay />
             {usuarioActual && (
               <NotificationBell
                 usuarioId={usuarioActual.id}

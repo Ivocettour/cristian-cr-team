@@ -9,6 +9,7 @@ import { ZonaParejaToggle } from "./ZonaParejaToggle";
 import { NewPartidoZonaForm } from "./NewPartidoZonaForm";
 import { NewPartidoEliminatoriaForm } from "./NewPartidoEliminatoriaForm";
 import { MatchRow } from "./MatchRow";
+import { BorrarParejaButton } from "./BorrarParejaButton";
 
 export default async function PartidosPage({
   params,
@@ -33,6 +34,15 @@ export default async function PartidosPage({
       </p>
     );
   }
+
+  const idsUsadosComoFeeder = new Set(
+    torneoCategoria.partidos_eliminatoria.flatMap((p) =>
+      [p.feeder_a_partido_id, p.feeder_b_partido_id].filter((id): id is string => Boolean(id))
+    )
+  );
+  const partidosDisponiblesComoFeeder = torneoCategoria.partidos_eliminatoria.filter(
+    (p) => !idsUsadosComoFeeder.has(p.id)
+  );
 
   return (
     <div className="flex flex-col gap-8 pb-16">
@@ -74,12 +84,12 @@ export default async function PartidosPage({
         </Card>
         <div className="flex flex-wrap gap-2">
           {torneoCategoria.parejas.map((p) => (
-            <span
+            <BorrarParejaButton
               key={p.id}
-              className="rounded-full border border-white/10 bg-panel px-3 py-2 text-sm text-white"
-            >
-              {p.jugador1.nombre} {p.jugador1.apellido} / {p.jugador2.nombre} {p.jugador2.apellido}
-            </span>
+              parejaId={p.id}
+              torneoId={torneo.id}
+              label={`${p.jugador1.nombre} ${p.jugador1.apellido} / ${p.jugador2.nombre} ${p.jugador2.apellido}`}
+            />
           ))}
         </div>
       </section>
@@ -158,6 +168,7 @@ export default async function PartidosPage({
             torneoId={torneo.id}
             torneoCategoriaId={torneoCategoria.id}
             parejas={torneoCategoria.parejas}
+            partidosDisponibles={partidosDisponiblesComoFeeder}
           />
         </CollapsibleForm>
       </section>
