@@ -17,9 +17,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Link href="/admin" className="font-heading text-lg text-white">
           PANEL ADMIN <span className="text-accent">·</span> CR&LB TEAM
         </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/" className="hidden font-heading text-xs tracking-wide text-foreground-muted hover:text-white sm:inline">
-            Ver sitio público
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="min-h-11 rounded-full border border-white/20 px-4 py-2 font-heading text-xs tracking-wide text-white hover:border-white flex items-center"
+          >
+            Ir a inicio
           </Link>
           <form action={logout}>
             <button className="min-h-11 rounded-full border border-white/20 px-4 font-heading text-xs tracking-wide text-white hover:border-white">

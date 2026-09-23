@@ -41,14 +41,26 @@ implementadas y **probadas end-to-end contra el Supabase real del usuario**
    confundía).
 7. El estado del torneo (Próximo/En vivo/Completado) pasó de ser un botón
    manual a calcularse solo según `fecha_inicio`/`fecha_fin`.
-8. Última tanda: **cuadro eliminatorio visual tipo bracket** (con líneas
-   conectoras, estilo UEFA), **avance automático** del ganador al siguiente
-   cruce, **editar/borrar** jugadores/parejas/torneos, y **buscador** en el
-   header.
+8. **Cuadro eliminatorio visual tipo bracket** (con líneas conectoras,
+   estilo UEFA), **avance automático** del ganador al siguiente cruce,
+   **editar/borrar** jugadores/parejas/torneos, y **buscador** en el header.
+9. Bugs encontrados probando el punto 8 y ya arreglados: el tab "Cuadro
+   eliminatorio" no tenía suscripción a Realtime (nunca se actualizaba sin
+   recargar) — se agregó `EliminationBracketTab.tsx`. De paso apareció un
+   bug real en `useRealtimePartidos` (el merge de un evento de Realtime
+   pisaba `pareja_a_id` pero dejaba el objeto `pareja_a` resuelto viejo, o
+   sea seguía mostrando "A definir" aunque el dato ya estuviera). También se
+   corrigió que el cuadro mostraba el conteo de sets ganados ("2 0") en vez
+   del resultado real ("6-3 7-5"). Ver "Decisiones de arquitectura" más
+   abajo para el detalle técnico.
+10. Botón **"Ir a inicio"** agregado al lado de "Salir" en el header del
+    panel admin (antes solo había un link chico "Ver sitio público" oculto
+    en mobile).
 
-No hay tareas a medio hacer que yo sepa — lo último que se probó (bracket +
-avance automático) quedó confirmado funcionando en el navegador contra la
-base real.
+No hay tareas a medio hacer que yo sepa — todo lo de arriba quedó probado en
+el navegador contra la base real, incluido el caso de dos pestañas abiertas
+en simultáneo para confirmar que el Realtime del cuadro funciona de punta a
+punta.
 
 ## Modelo de datos (3 migraciones, corridas en orden)
 
@@ -127,10 +139,24 @@ porque la primera vez aparentemente no se ejecutó bien del todo.
   (`crearPartidoEliminatoria`) también pre-llena la pareja si el feeder ya
   estaba resuelto al momento de crear el cruce (si no, quedaba "A definir"
   para siempre aunque el partido anterior ya tuviera ganador — bug real que
-  se encontró y arregló en esta misma sesión). `EliminationBracket.tsx`
-  calcula la posición vertical de cada partido promediando la fila de sus
-  dos feeders y dibuja las líneas con SVG — no asume nada de la forma del
-  cuadro, solo sigue los links.
+  se encontró y arregló en esta misma sesión; si algún partido viejo quedó
+  con ese problema, hay un `update` de reparación de una sola vez que
+  reconstruye `pareja_a_id`/`pareja_b_id` desde el `ganador_pareja_id` de
+  sus feeders, buscarlo en el historial de chat si hace falta reusarlo).
+  `EliminationBracket.tsx` calcula la posición vertical de cada partido
+  promediando la fila de sus dos feeders y dibuja las líneas con SVG — no
+  asume nada de la forma del cuadro, solo sigue los links. Se actualiza en
+  vivo vía `EliminationBracketTab.tsx` (mismo patrón `key={categoriaId}` +
+  `useRealtimePartidos` que `LiveResultsTab.tsx`).
+- **`useRealtimePartidos` resuelve parejas, no solo IDs.** Un evento de
+  Postgres Realtime (`postgres_changes`) solo trae columnas crudas
+  (`pareja_a_id` como UUID), nunca el join con `jugador`. El hook arma un
+  mapa de todas las parejas ya conocidas (id → `ParejaConJugadores`) a
+  partir de la lista actual y lo usa para resolver `pareja_a`/`pareja_b`
+  cuando cambian sus `_id` — si se toca este hook, no volver a hacer un
+  merge plano tipo `{...p, ...nuevo}` sin pasar por esa resolución, porque
+  eso es justo el bug que ya se arregló (la pareja quedaba "A definir" para
+  siempre después de un avance automático en vivo).
 - **Carga de resultados**: es de una sola vez, no incremental. El admin
   completa los sets jugados + elige ganador + guarda, todo junto
   (`lib/actions/live.ts` → `finalizarPartido` recibe el array completo de
@@ -148,7 +174,8 @@ app/(public)/cuenta/      Login/registro/cuenta de ESPECTADOR (no admin).
 app/admin/login/          Login de admin, standalone (fuera del layout
                           protegido a propósito — ver nota de gotcha abajo).
 app/admin/(protected)/    Todo lo demás de admin, con el layout compartido
-                          (nav, botón salir, banner de "modo demo").
+                          (nav, botones "Ir a inicio"/"Salir", banner de
+                          "modo demo").
 app/admin/(protected)/torneos/[id]/partidos/
                           La pantalla unificada: parejas, zonas (con sus
                           partidos y carga de resultado inline), cuadro
