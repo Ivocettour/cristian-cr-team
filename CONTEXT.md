@@ -56,6 +56,19 @@ implementadas y **probadas end-to-end contra el Supabase real del usuario**
 10. Botón **"Ir a inicio"** agregado al lado de "Salir" en el header del
     panel admin (antes solo había un link chico "Ver sitio público" oculto
     en mobile).
+11. Documentación PDF para el cliente: `CR&LB team - Documentacion y Manual
+    de Usuario.pdf` en la raíz del repo (14 páginas, en español, con índice
+    navegable/marcadores) — portada, qué incluye la plataforma, cómo está
+    organizada la información, manual paso a paso del sitio público, manual
+    paso a paso del panel admin, preguntas frecuentes, aspectos técnicos y
+    mantenimiento. Generado con reportlab (Platypus), sin capturas de
+    pantalla reales (la herramienta de navegador de esta sesión no tiene
+    forma de persistir un screenshot a disco, solo de mostrármelo a mí) y
+    sin ningún secreto/credencial. El usuario prefirió dejarlo así en vez de
+    pegar capturas manualmente. Script fuente:
+    `scratchpad/build_pdf.py` (queda en el scratchpad de la sesión, no en el
+    repo — si hay que regenerarlo o editar contenido en una sesión nueva,
+    hay que rehacer el script, no está commiteado).
 
 No hay tareas a medio hacer que yo sepa — todo lo de arriba quedó probado en
 el navegador contra la base real, incluido el caso de dos pestañas abiertas
