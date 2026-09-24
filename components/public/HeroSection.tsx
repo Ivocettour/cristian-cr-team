@@ -12,23 +12,15 @@ export function HeroSection() {
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-background"
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center mix-blend-screen opacity-[0.22] grayscale-[35%]"
-        aria-hidden
-      >
+      <div className="relative mx-auto max-w-3xl text-center">
         <Image
           src="/logo.png"
-          alt=""
+          alt="Torneos CR&LB team"
           width={1206}
           height={570}
           priority
-          className="w-[115%] max-w-none sm:w-[65%]"
+          className="mix-blend-screen mx-auto mb-4 h-auto w-full max-w-[15rem] sm:max-w-xs"
         />
-      </div>
-      <div className="relative mx-auto max-w-3xl text-center">
-        <p className="mb-3 font-heading text-sm tracking-widest text-accent-light">
-          CR&amp;LB team
-        </p>
         <h1 className="font-heading text-[clamp(2.5rem,9vw,5.5rem)] leading-[0.95] text-white">
           TORNEOS, ZONAS Y RESULTADOS EN VIVO
         </h1>
