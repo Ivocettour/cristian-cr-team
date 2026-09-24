@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SupabaseBanner } from "@/components/admin/SupabaseBanner";
 import { logout } from "@/lib/actions/auth";
@@ -14,8 +15,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SupabaseBanner />
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border-subtle bg-black/80 px-4 backdrop-blur sm:px-6">
-        <Link href="/admin" className="font-heading text-lg text-white">
-          PANEL ADMIN <span className="text-accent">·</span> CR&LB TEAM
+        <Link href="/admin" className="flex items-center gap-3">
+          <Image
+            src="/logo-mark.png"
+            alt="CR&LB team"
+            width={1206}
+            height={451}
+            priority
+            className="h-8 w-auto"
+          />
+          <span className="hidden font-heading text-sm tracking-wide text-foreground-muted sm:inline">
+            Panel admin
+          </span>
         </Link>
         <div className="flex items-center gap-3">
           <Link

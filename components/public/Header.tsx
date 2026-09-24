@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Countdown } from "@/components/ui/Countdown";
@@ -39,8 +40,15 @@ export function Header({
 
       <header className="sticky top-0 z-40 border-b border-border-subtle bg-black/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="font-heading text-xl text-white">
-            CR&amp;LB <span className="text-accent">TEAM</span>
+          <Link href="/" className="flex items-center" aria-label="CR&amp;LB team">
+            <Image
+              src="/logo-mark.png"
+              alt="CR&amp;LB team"
+              width={1206}
+              height={451}
+              priority
+              className="h-9 w-auto sm:h-10"
+            />
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">

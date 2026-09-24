@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 
 export function HeroSection() {
@@ -12,9 +13,14 @@ export function HeroSection() {
         aria-hidden
       />
       <div className="relative mx-auto max-w-3xl text-center">
-        <p className="mb-3 font-heading text-sm tracking-widest text-accent-light">
-          CR&LB team
-        </p>
+        <Image
+          src="/logo.png"
+          alt="Torneos CR&LB team"
+          width={1206}
+          height={570}
+          priority
+          className="mx-auto mb-6 h-auto w-full max-w-xs sm:max-w-sm"
+        />
         <h1 className="font-heading text-[clamp(2.5rem,9vw,5.5rem)] leading-[0.95] text-white">
           TORNEOS, ZONAS Y RESULTADOS EN VIVO
         </h1>
